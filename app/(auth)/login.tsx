@@ -1,5 +1,12 @@
-import { Ionicons } from "@expo/vector-icons";
+import { Jersey10_400Regular } from "@expo-google-fonts/jersey-10";
+import { JosefinSlab_400Regular } from "@expo-google-fonts/josefin-slab";
+import { Khula_400Regular } from "@expo-google-fonts/khula";
+import { KronaOne_400Regular } from "@expo-google-fonts/krona-one";
+import { useFonts } from "expo-font";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -14,29 +21,36 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const C = {
-  bg: "#F7F1E8",
-  card: "#FFFFFF",
-  field: "#F4EEE4",
-  ink: "#2B2620",
-  muted: "#9C9388",
-  coral: "#FF6B4A",
-  coralDark: "#F2502B",
-  line: "#EBE3D6",
+const F = {
+  spy: "Jersey10_400Regular",
+  der: "JosefinSlab_400Regular",
+  body: "Khula_400Regular",
+  label: "KronaOne_400Regular",
+  or: "Kokoro_400Regular",
 };
+
+// Gradient stops from the Figma design, with the blues darkened.
+const GRADIENT = ["#4E4E51", "#080A1E", "#060A36", "#020626", "#585555"] as const;
+const GRADIENT_LOCATIONS = [0, 0.29, 0.61, 0.95, 1] as const;
 
 export default function LoginScreen() {
   const router = useRouter();
+
+  const [fontsLoaded] = useFonts({
+    Jersey10_400Regular,
+    JosefinSlab_400Regular,
+    Khula_400Regular,
+    KronaOne_400Regular,
+    Kokoro_400Regular: require("../../assets/fonts/Kokoro-Regular.ttf"),
+  });
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const canSubmit = email.trim().length > 0 && password.length > 0 && !loading;
-
   const handleLogin = () => {
-    if (!canSubmit) return;
+    if (loading) return;
     setLoading(true);
     // TODO: wire up services/auth.ts
     setTimeout(() => {
@@ -45,8 +59,34 @@ export default function LoginScreen() {
     }, 900);
   };
 
+  if (!fontsLoaded) {
+    return <View style={[styles.root, { backgroundColor: "#0D1031" }]} />;
+  }
+
   return (
     <View style={styles.root}>
+      <StatusBar style="light" />
+
+      <LinearGradient
+        colors={GRADIENT}
+        locations={GRADIENT_LOCATIONS}
+        start={{ x: 0.1, y: 0 }}
+        end={{ x: 0.9, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
+
+      {/* Corner spider webs */}
+      <Image
+        source={require("../../assets/images/web2.png")}
+        style={styles.webTop}
+        contentFit="contain"
+      />
+      <Image
+        source={require("../../assets/images/web3.png")}
+        style={styles.webBottom}
+        contentFit="contain"
+      />
+
       <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
         <KeyboardAvoidingView
           style={styles.flex}
@@ -57,97 +97,88 @@ export default function LoginScreen() {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            {/* Brand */}
-            <View style={styles.brandRow}>
-              <View style={styles.logo}>
-                <Ionicons name="bug" size={22} color={C.card} />
-              </View>
-              <Text style={styles.brandName}>spyder</Text>
-            </View>
-
-            <Text style={styles.title}>Hey, welcome back 👋</Text>
+            {/* Logo */}
+            <Text style={styles.logo}>
+              <Text style={styles.logoSpy}>spy</Text>
+              <Text style={styles.logoDer}>der</Text>
+            </Text>
             <Text style={styles.subtitle}>
-              Sign in to pick up where you left off.
+              Sign in to pick where you left off
             </Text>
 
             {/* Card */}
             <View style={styles.card}>
-              <Text style={styles.label}>Email</Text>
-              <Field
-                icon="mail-outline"
-                placeholder="you@email.com"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-              />
+              <Text style={styles.fieldLabel}>Email</Text>
+              <View style={styles.inputWrap}>
+                <TextInput
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  placeholderTextColor="rgba(255,255,255,0.35)"
+                  cursorColor="#fff"
+                />
+              </View>
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Password</Text>
-                <Pressable hitSlop={8}>
-                  <Text style={styles.forgot}>Forgot?</Text>
+              <Text style={styles.fieldLabel}>Password</Text>
+              <View style={styles.inputWrap}>
+                <TextInput
+                  style={styles.input}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoComplete="password"
+                  placeholderTextColor="rgba(255,255,255,0.35)"
+                  cursorColor="#fff"
+                />
+                <Pressable
+                  onPress={() => setShowPassword((s) => !s)}
+                  hitSlop={10}
+                  style={styles.eye}
+                >
+                  <Text style={styles.eyeText}>
+                    {showPassword ? "HIDE" : "SHOW"}
+                  </Text>
                 </Pressable>
               </View>
-              <Field
-                icon="lock-closed-outline"
-                placeholder="••••••••"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={!showPassword}
-                autoCapitalize="none"
-                autoComplete="password"
-                trailing={
-                  <Pressable
-                    onPress={() => setShowPassword((s) => !s)}
-                    hitSlop={10}
-                  >
-                    <Ionicons
-                      name={showPassword ? "eye-off-outline" : "eye-outline"}
-                      size={20}
-                      color={C.muted}
-                    />
-                  </Pressable>
-                }
-              />
+
+              <Pressable hitSlop={8} style={styles.forgotWrap}>
+                <Text style={styles.forgot}>Forgot?</Text>
+              </Pressable>
 
               <Pressable
                 onPress={handleLogin}
-                disabled={!canSubmit}
                 style={({ pressed }) => [
-                  styles.button,
-                  !canSubmit && styles.buttonDisabled,
-                  pressed && canSubmit && styles.buttonPressed,
+                  styles.loginBtn,
+                  pressed && styles.pressed,
                 ]}
               >
                 {loading ? (
-                  <ActivityIndicator color={C.card} />
+                  <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.buttonText}>Log in</Text>
+                  <Text style={styles.loginText}>Log in</Text>
                 )}
               </Pressable>
 
               <View style={styles.dividerRow}>
                 <View style={styles.line} />
-                <Text style={styles.dividerText}>or</Text>
+                <Text style={styles.orText}>OR</Text>
                 <View style={styles.line} />
               </View>
 
               <View style={styles.socialRow}>
-                <Social icon="logo-google" label="Google" />
-                <Social icon="logo-apple" label="Apple" />
+                <Social
+                  source={require("../../assets/images/google.png")}
+                  label="Google"
+                />
+                <Social
+                  source={require("../../assets/images/apple.png")}
+                  label="Apple"
+                />
               </View>
-            </View>
-
-            {/* Footer */}
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>New here? </Text>
-              <Pressable
-                onPress={() => router.push("/(auth)/signup")}
-                hitSlop={8}
-              >
-                <Text style={styles.footerLink}>Create an account</Text>
-              </Pressable>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -156,192 +187,167 @@ export default function LoginScreen() {
   );
 }
 
-type FieldProps = React.ComponentProps<typeof TextInput> & {
-  icon: keyof typeof Ionicons.glyphMap;
-  trailing?: React.ReactNode;
-};
-
-function Field({ icon, trailing, ...props }: FieldProps) {
-  const [focused, setFocused] = useState(false);
-  return (
-    <View style={[styles.fieldWrap, focused && styles.fieldFocused]}>
-      <Ionicons name={icon} size={20} color={focused ? C.coral : C.muted} />
-      <TextInput
-        style={styles.fieldInput}
-        placeholderTextColor={C.muted}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        {...props}
-      />
-      {trailing}
-    </View>
-  );
-}
-
 function Social({
-  icon,
+  source,
   label,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  source: number;
   label: string;
 }) {
   return (
     <Pressable
-      style={({ pressed }) => [styles.social, pressed && styles.socialPressed]}
+      style={({ pressed }) => [styles.social, pressed && styles.pressed]}
     >
-      <Ionicons name={icon} size={20} color={C.ink} />
+      <Image source={source} style={styles.socialIcon} contentFit="contain" />
       <Text style={styles.socialText}>{label}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: C.bg },
+  root: { flex: 1, backgroundColor: "#0D1031" },
   flex: { flex: 1 },
   safe: { flex: 1 },
   scroll: {
     flexGrow: 1,
     justifyContent: "center",
-    padding: 24,
+    paddingHorizontal: 28,
+    paddingVertical: 40,
   },
 
-  brandRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 28,
+  webTop: {
+    position: "absolute",
+    top: -20,
+    right: -30,
+    width: 220,
+    height: 220,
+    opacity: 0.9,
   },
+  webBottom: {
+    position: "absolute",
+    bottom: -10,
+    left: -40,
+    width: 220,
+    height: 220,
+    opacity: 0.5,
+  },
+
   logo: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: C.coral,
-    alignItems: "center",
-    justifyContent: "center",
+    textAlign: "center",
+    color: "#FFFFFF",
+    fontSize: 58,
+    lineHeight: 64,
   },
-  brandName: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: C.ink,
-    letterSpacing: -0.5,
-  },
+  logoSpy: { fontFamily: F.spy, fontSize: 58 },
+  logoDer: { fontFamily: F.der, fontSize: 52 },
 
-  title: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: C.ink,
-    letterSpacing: -0.6,
-  },
   subtitle: {
+    fontFamily: F.body,
+    textAlign: "center",
+    color: "rgba(255,255,255,0.6)",
     fontSize: 15,
-    color: C.muted,
-    marginTop: 8,
-    marginBottom: 24,
-    lineHeight: 21,
+    marginTop: 4,
+    marginBottom: 34,
   },
 
   card: {
-    backgroundColor: C.card,
-    borderRadius: 28,
+    backgroundColor: "rgba(255,255,255,0.05)",
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
     padding: 22,
-    shadowColor: "#9A7B5A",
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 4,
   },
 
-  label: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: C.ink,
-    marginBottom: 8,
+  fieldLabel: {
+    fontFamily: F.label,
+    color: "#FFFFFF",
+    fontSize: 16,
+    marginBottom: 10,
+    marginTop: 6,
   },
-  labelRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 16,
-  },
-  forgot: { fontSize: 13, fontWeight: "700", color: C.coral },
-
-  fieldWrap: {
+  inputWrap: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    backgroundColor: C.field,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: "transparent",
-    paddingHorizontal: 16,
-    height: 56,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.55)",
+    borderRadius: 10,
+    backgroundColor: "rgba(0,0,0,0.2)",
+    paddingHorizontal: 14,
+    height: 48,
   },
-  fieldFocused: {
-    borderColor: C.coral,
-    backgroundColor: C.card,
-  },
-  fieldInput: {
+  input: {
     flex: 1,
-    color: C.ink,
+    color: "#FFFFFF",
     fontSize: 16,
     height: "100%",
+    fontFamily: F.body,
+  },
+  eye: { paddingLeft: 10 },
+  eyeText: {
+    fontFamily: F.body,
+    color: "rgba(255,255,255,0.55)",
+    fontSize: 11,
+    letterSpacing: 1,
   },
 
-  button: {
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: C.coral,
+  forgotWrap: { alignSelf: "flex-end", marginTop: 8 },
+  forgot: {
+    fontFamily: F.body,
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 14,
+  },
+
+  loginBtn: {
+    height: 50,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.55)",
+    backgroundColor: "rgba(0,0,0,0.25)",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 24,
-    shadowColor: C.coral,
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 6,
+    marginTop: 18,
   },
-  buttonPressed: { backgroundColor: C.coralDark },
-  buttonDisabled: {
-    backgroundColor: "#F0C9BD",
-    shadowOpacity: 0,
+  loginText: {
+    fontFamily: F.label,
+    color: "#FFFFFF",
+    fontSize: 17,
   },
-  buttonText: {
-    color: C.card,
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: 0.2,
-  },
+  pressed: { opacity: 0.7 },
 
   dividerRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    marginVertical: 20,
+    marginVertical: 18,
   },
-  line: { flex: 1, height: 1, backgroundColor: C.line },
-  dividerText: { color: C.muted, fontSize: 13, fontWeight: "600" },
+  line: { flex: 1, height: 1, backgroundColor: "rgba(255,255,255,0.25)" },
+  orText: {
+    fontFamily: F.or,
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 13,
+    letterSpacing: 1,
+  },
 
-  socialRow: { flexDirection: "row", gap: 12 },
+  socialRow: { flexDirection: "row", gap: 14 },
   social: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    height: 52,
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: C.line,
-    backgroundColor: C.card,
+    height: 46,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.4)",
+    backgroundColor: "rgba(0,0,0,0.2)",
   },
-  socialPressed: { backgroundColor: C.field },
-  socialText: { fontSize: 14, fontWeight: "700", color: C.ink },
-
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 28,
+  socialIcon: { width: 18, height: 18 },
+  // LINE Seed JP is not distributed as a TTF (Google Fonts / fontsource ship
+  // only woff/woff2, which RN can't load). Falls back to a bold system font.
+  // Drop assets/fonts/LINESeedJP_Bd.ttf in and register it to use the real one.
+  socialText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
   },
-  footerText: { fontSize: 14, color: C.muted },
-  footerLink: { fontSize: 14, fontWeight: "800", color: C.coral },
 });
