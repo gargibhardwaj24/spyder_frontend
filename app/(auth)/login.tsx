@@ -30,7 +30,7 @@ const F = {
 };
 
 // Gradient stops from the Figma design, with the blues darkened.
-const GRADIENT = ["#4E4E51", "#080A1E", "#060A36", "#020626", "#585555"] as const;
+const GRADIENT = ["#333337", "#040513", "#050615", "#020626", "#423f3f"] as const;
 const GRADIENT_LOCATIONS = [0, 0.29, 0.61, 0.95, 1] as const;
 
 export default function LoginScreen() {
