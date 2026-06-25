@@ -180,6 +180,17 @@ export default function LoginScreen() {
                 />
               </View>
             </View>
+
+            {/* Sign up */}
+            <View style={styles.signupRow}>
+              <Text style={styles.signupText}>Don&apos;t have an account? </Text>
+              <Pressable
+                hitSlop={8}
+                onPress={() => router.push("/(auth)/signup")}
+              >
+                <Text style={styles.signupLink}>Sign up</Text>
+              </Pressable>
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
@@ -342,6 +353,24 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.2)",
   },
   socialIcon: { width: 18, height: 18 },
+
+  signupRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 22,
+  },
+  signupText: {
+    fontFamily: F.body,
+    color: "rgba(255,255,255,0.6)",
+    fontSize: 14,
+  },
+  signupLink: {
+    fontFamily: F.label,
+    color: "#FFFFFF",
+    fontSize: 14,
+  },
+
   // LINE Seed JP is not distributed as a TTF (Google Fonts / fontsource ship
   // only woff/woff2, which RN can't load). Falls back to a bold system font.
   // Drop assets/fonts/LINESeedJP_Bd.ttf in and register it to use the real one.
