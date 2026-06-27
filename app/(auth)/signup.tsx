@@ -1,6 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+
+import { useAuth } from "../../context/auth";
+import { ApiError } from "../../services/api";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -27,27 +30,38 @@ const C = {
 
 export default function SignupScreen() {
   const router = useRouter();
+  const { signup } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Backend requires a password of at least 12 characters (weak_password).
   const canSubmit =
     name.trim().length > 0 &&
     email.trim().length > 0 &&
-    password.length >= 6 &&
+    password.length >= 12 &&
     !loading;
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!canSubmit) return;
+    setError(null);
     setLoading(true);
-    // TODO: wire up services/auth.ts
-    setTimeout(() => {
+    try {
+      await signup(name.trim(), email.trim(), password);
+      // The root layout's route guard redirects to /(main)/home on success.
+    } catch (e) {
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : "Couldn't create your account. Check your connection and try again."
+      );
+    } finally {
       setLoading(false);
-      router.replace("/(main)/home");
-    }, 900);
+    }
   };
 
   return (
@@ -101,7 +115,7 @@ export default function SignupScreen() {
               <Text style={[styles.label, styles.labelSpaced]}>Password</Text>
               <Field
                 icon="lock-closed-outline"
-                placeholder="At least 6 characters"
+                placeholder="At least 12 characters"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
@@ -120,6 +134,8 @@ export default function SignupScreen() {
                   </Pressable>
                 }
               />
+
+              {error && <Text style={styles.error}>{error}</Text>}
 
               <Pressable
                 onPress={handleSignup}
@@ -337,6 +353,12 @@ const styles = StyleSheet.create({
   },
   socialPressed: { backgroundColor: C.field },
   socialText: { fontSize: 14, fontWeight: "700", color: C.ink },
+
+  error: {
+    fontSize: 13,
+    color: "#D6453B",
+    marginTop: 16,
+  },
 
   footer: {
     flexDirection: "row",

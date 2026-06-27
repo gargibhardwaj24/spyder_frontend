@@ -21,6 +21,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useAuth } from "../../context/auth";
+import { ApiError } from "../../services/api";
+
 const F = {
   spy: "Jersey10_400Regular",
   der: "JosefinSlab_400Regular",
@@ -44,19 +47,33 @@ export default function LoginScreen() {
     Kokoro_400Regular: require("../../assets/fonts/Kokoro-Regular.ttf"),
   });
 
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (loading) return;
+    if (!email.trim() || !password) {
+      setError("Enter your email and password.");
+      return;
+    }
+    setError(null);
     setLoading(true);
-    // TODO: wire up services/auth.ts
-    setTimeout(() => {
+    try {
+      await login(email.trim(), password);
+      // The root layout's route guard redirects to /(main)/home on success.
+    } catch (e) {
+      setError(
+        e instanceof ApiError
+          ? e.message
+          : "Couldn't sign in. Check your connection and try again."
+      );
+    } finally {
       setLoading(false);
-      router.replace("/(main)/home");
-    }, 900);
+    }
   };
 
   if (!fontsLoaded) {
@@ -148,6 +165,8 @@ export default function LoginScreen() {
               <Pressable hitSlop={8} style={styles.forgotWrap}>
                 <Text style={styles.forgot}>Forgot?</Text>
               </Pressable>
+
+              {error && <Text style={styles.error}>{error}</Text>}
 
               <Pressable
                 onPress={handleLogin}
@@ -299,6 +318,13 @@ const styles = StyleSheet.create({
     color: "rgba(255,255,255,0.55)",
     fontSize: 11,
     letterSpacing: 1,
+  },
+
+  error: {
+    fontFamily: F.body,
+    color: "#FF8A7A",
+    fontSize: 13,
+    marginTop: 12,
   },
 
   forgotWrap: { alignSelf: "flex-end", marginTop: 8 },

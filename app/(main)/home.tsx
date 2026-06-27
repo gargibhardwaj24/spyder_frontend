@@ -11,6 +11,8 @@ import { StatusBar } from "expo-status-bar";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useAuth } from "../../context/auth";
+
 const F = {
   spy: "Jersey10_400Regular",
   der: "JosefinSlab_400Regular",
@@ -45,6 +47,7 @@ const ACTIONS = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { user, logout } = useAuth();
 
   const [fontsLoaded] = useFonts({
     Jersey10_400Regular,
@@ -54,8 +57,8 @@ export default function HomeScreen() {
   });
 
   const handleLogout = () => {
-    // TODO: clear session via services/auth.ts
-    router.replace("/(auth)/login");
+    // Clears tokens; the root layout's route guard redirects to login.
+    logout();
   };
 
   if (!fontsLoaded) {
@@ -94,7 +97,9 @@ export default function HomeScreen() {
           {/* Header */}
           <View style={styles.header}>
             <View>
-              <Text style={styles.greeting}>Welcome back</Text>
+              <Text style={styles.greeting}>
+                {user ? `Welcome back, ${user.full_name.split(" ")[0]}` : "Welcome back"}
+              </Text>
               <Text style={styles.logo}>
                 <Text style={styles.logoSpy}>spy</Text>
                 <Text style={styles.logoDer}>der</Text>
